@@ -8,7 +8,7 @@ from tzlocal import get_localzone
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, BusinessConnectionHandler
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters, BusinessConnectionHandler, BusinessMessagesDeletedHandler
 
 LOG_PATH = "data/logs"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -34,6 +34,14 @@ async def log_business_message(update: Update, _: ContextTypes.DEFAULT_TYPE):
     if business_object.business_connection_id != OWNER_CONNECTION_ID:
         return
     logger.warning(f"Received message: {update}")
+
+
+async def log_deleted_business_message(update: Update, _: ContextTypes.DEFAULT_TYPE):
+    if not update.deleted_business_messages:
+        return
+    if update.deleted_business_messages.business_connection_id != OWNER_CONNECTION_ID:
+        return
+    logger.warning(f"Received deleted message: {update}")
 
 
 async def log_business_connection(update: Update, _: ContextTypes.DEFAULT_TYPE):
@@ -77,11 +85,13 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(BOT_TOKEN).build()
     
     start_handler = CommandHandler('start', start)
-    echo_handler = MessageHandler(filters.UpdateType.BUSINESS_MESSAGES, log_business_message)
+    business_message_handler = MessageHandler(filters.UpdateType.BUSINESS_MESSAGES, log_business_message)
+    deleted_business_message_handler = BusinessMessagesDeletedHandler(log_deleted_business_message)
     business_connection_handler = BusinessConnectionHandler(log_business_connection)
     
     application.add_handler(start_handler)
-    application.add_handler(echo_handler)
+    application.add_handler(business_message_handler)
+    application.add_handler(deleted_business_message_handler)
     application.add_handler(business_connection_handler)
 
     scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 300}, timezone=str(get_localzone()))
