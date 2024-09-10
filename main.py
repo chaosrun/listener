@@ -32,7 +32,7 @@ async def log_business_message(update: Update, _: ContextTypes.DEFAULT_TYPE):
         return
     if update.business_message.business_connection_id != OWNER_CONNECTION_ID:
         return
-    logger.warning(f"Received message: {update.business_message}")
+    logger.warning(f"Received message: {update}")
 
 
 async def log_business_connection(update: Update, _: ContextTypes.DEFAULT_TYPE):
