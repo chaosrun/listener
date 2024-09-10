@@ -28,9 +28,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def log_business_message(update: Update, _: ContextTypes.DEFAULT_TYPE):
-    if not update.business_message:
+    if not update.business_message and not update.edited_business_message:
         return
-    if update.business_message.business_connection_id != OWNER_CONNECTION_ID:
+    business_object = update.business_message or update.edited_business_message
+    if business_object.business_connection_id != OWNER_CONNECTION_ID:
         return
     logger.warning(f"Received message: {update}")
 
