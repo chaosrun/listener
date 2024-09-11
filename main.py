@@ -58,7 +58,7 @@ def log_rotation() -> bool:
         with open(f"{LOG_PATH}/log", "w", encoding="utf-8") as f:
             f.write("")
 
-        run(f"find {LOG_PATH}/log-* -mtime +7 -delete", shell=True)  # nosec B602
+        run(f"find {LOG_PATH}/log-* -mtime +3 -delete", shell=True)  # nosec B602
 
         result = True
     except Exception as e:
