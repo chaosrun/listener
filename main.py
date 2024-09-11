@@ -12,6 +12,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Messa
 
 LOG_PATH = "data/logs"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+OWNER_ID = int(os.getenv("OWNER_ID"))
 OWNER_CONNECTION_ID = os.getenv("OWNER_CONNECTION_ID")
 
 logging.basicConfig(
@@ -33,6 +34,8 @@ async def log_business_message(update: Update, _: ContextTypes.DEFAULT_TYPE):
     business_object = update.business_message or update.edited_business_message
     if business_object.business_connection_id != OWNER_CONNECTION_ID:
         return
+    if business_object.from_user.id == OWNER_ID:
+        return
     logger.warning(f"Received message: {update}")
 
 
@@ -41,7 +44,7 @@ async def log_deleted_business_message(update: Update, _: ContextTypes.DEFAULT_T
         return
     if update.deleted_business_messages.business_connection_id != OWNER_CONNECTION_ID:
         return
-    logger.warning(f"Received deleted message: {update}")
+    logger.warning(f"🔴 Received deleted message: {update}")
 
 
 async def log_business_connection(update: Update, _: ContextTypes.DEFAULT_TYPE):
